@@ -1,42 +1,39 @@
-*** Settings ***
-Library    SeleniumLibrary
+name: QA Automation Suite
 
-*** Variables ***
-${URL}           https://www.saucedemo.com
-${VALID_USER}    standard_user
-${VALID_PASS}    secret_sauce
-${WRONG_PASS}    wrong_password
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-*** Keywords ***
-Open Test Browser
-    ${options}=    Evaluate
-    ...    __import__('selenium.webdriver', fromlist=['ChromeOptions']).ChromeOptions()
-    Call Method    ${options}    add_argument    --headless=new
-    Call Method    ${options}    add_argument    --no-sandbox
-    Call Method    ${options}    add_argument    --disable-dev-shm-usage
-    Call Method    ${options}    add_argument    --disable-gpu
-    Open Browser    ${URL}    chrome    options=${options}
+jobs:
+  robot-tests:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-*** Test Cases ***
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-TC01 - Valid Login
-    Open Test Browser
-    Input Text      id=user-name    ${VALID_USER}
-    Input Text      id=password     ${VALID_PASS}
-    Click Button    id=login-button
-    Title Should Be    Swag Labs
-    [Teardown]    Close All Browsers
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-TC02 - Invalid Login Shows Error
-    Open Test Browser
-    Input Text      id=user-name    ${VALID_USER}
-    Input Text      id=password     ${WRONG_PASS}
-    Click Button    id=login-button
-    Element Should Be Visible    css=.error-message-container
-    [Teardown]    Close All Browsers
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-TC03 - Empty Fields Show Error
-    Open Test Browser
-    Click Button    id=login-button
-    Element Should Be Visible    css=.error-message-container
-    [Teardown]    Close All Browsers
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@latest
+
+      - name: Run Robot Framework tests
+        run: |
+          python -m robot --variable BROWSER:headlesschrome --outputdir results tests/
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-results
+          path: results/
