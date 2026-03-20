@@ -1,13 +1,11 @@
 *** Settings ***
 Library    SeleniumLibrary
-Library    WebDriverManager
 
 *** Variables ***
 ${URL}           https://www.saucedemo.com
 ${VALID_USER}    standard_user
 ${VALID_PASS}    secret_sauce
 ${WRONG_PASS}    wrong_password
-${BROWSER}       chrome
 
 *** Keywords ***
 Open Test Browser
