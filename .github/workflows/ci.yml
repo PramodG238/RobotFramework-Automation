@@ -1,26 +1,26 @@
-name: QA Smoke Test
+name: QA Smoke Test          # name shown in Actions tab
  
 on:
   push:
-    branches: [main]
+    branches: [main]         # trigger: runs on every push to main branch
  
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  test:                      # job name — you choose this
+    runs-on: ubuntu-latest   # GitHub spins up a fresh Linux machine
  
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3     # downloads your repo onto the machine
  
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v4 # installs Python (pre-built action)
         with:
           python-version: '3.11'
  
       - name: Install pytest
-        run: pip install pytest
+        run: pip install pytest       # plain terminal command
  
       - name: Run smoke test
-        run: |
-          echo "QA pipeline is running!"
+        run: |                        # | means multiple commands
+          echo "QA pipeline running!"
           python -m pytest --version
