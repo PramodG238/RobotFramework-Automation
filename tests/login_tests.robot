@@ -6,21 +6,12 @@ ${URL}           https://www.saucedemo.com
 ${VALID_USER}    standard_user
 ${VALID_PASS}    secret_sauce
 ${WRONG_PASS}    wrong_password
-
-*** Keywords ***
-Open Test Browser
-    ${options}=    Evaluate
-    ...    __import__('selenium.webdriver', fromlist=['ChromeOptions']).ChromeOptions()
-    Call Method    ${options}    add_argument    --headless=new
-    Call Method    ${options}    add_argument    --no-sandbox
-    Call Method    ${options}    add_argument    --disable-dev-shm-usage
-    Call Method    ${options}    add_argument    --disable-gpu
-    Open Browser    ${URL}    chrome    options=${options}
+${OPTIONS}       add_argument("--headless=new"); add_argument("--no-sandbox"); add_argument("--disable-dev-shm-usage"); add_argument("--disable-gpu")
 
 *** Test Cases ***
 
 TC01 - Valid Login
-    Open Test Browser
+    Open Browser    ${URL}    chrome    options=${OPTIONS}
     Input Text      id=user-name    ${VALID_USER}
     Input Text      id=password     ${VALID_PASS}
     Click Button    id=login-button
@@ -28,7 +19,7 @@ TC01 - Valid Login
     [Teardown]    Close All Browsers
 
 TC02 - Invalid Login Shows Error
-    Open Test Browser
+    Open Browser    ${URL}    chrome    options=${OPTIONS}
     Input Text      id=user-name    ${VALID_USER}
     Input Text      id=password     ${WRONG_PASS}
     Click Button    id=login-button
@@ -36,7 +27,7 @@ TC02 - Invalid Login Shows Error
     [Teardown]    Close All Browsers
 
 TC03 - Empty Fields Show Error
-    Open Test Browser
+    Open Browser    ${URL}    chrome    options=${OPTIONS}
     Click Button    id=login-button
     Element Should Be Visible    css=.error-message-container
     [Teardown]    Close All Browsers
