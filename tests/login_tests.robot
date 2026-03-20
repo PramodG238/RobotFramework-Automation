@@ -9,16 +9,13 @@ ${WRONG_PASS}    wrong_password
 
 *** Keywords ***
 Open Test Browser
-    ${chrome_options}=    Evaluate
-    ...    sys.modules['selenium.webdriver'].ChromeOptions()
-    ...    sys
-    Call Method    ${chrome_options}    add_argument    --headless
-    Call Method    ${chrome_options}    add_argument    --no-sandbox
-    Call Method    ${chrome_options}    add_argument    --disable-dev-shm-usage
-    Call Method    ${chrome_options}    add_argument    --disable-gpu
-    Call Method    ${chrome_options}    add_argument    --window-size=1920,1080
-    Create Webdriver    Chrome    options=${chrome_options}
-    Go To    ${URL}
+    ${options}=    Evaluate
+    ...    __import__('selenium.webdriver', fromlist=['ChromeOptions']).ChromeOptions()
+    Call Method    ${options}    add_argument    --headless=new
+    Call Method    ${options}    add_argument    --no-sandbox
+    Call Method    ${options}    add_argument    --disable-dev-shm-usage
+    Call Method    ${options}    add_argument    --disable-gpu
+    Open Browser    ${URL}    chrome    options=${options}
 
 *** Test Cases ***
 
