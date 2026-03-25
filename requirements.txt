@@ -2,3 +2,4 @@ robotframework>=7.0
 robotframework-seleniumlibrary>=6.3.0
 robotframework-requests>=0.9.5
 webdriver-manager>=4.0.0
+allure-robotframework
