@@ -6,14 +6,12 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: "30 3 * * *"   # Runs daily at 9:00 AM IST
+    - cron: "30 3 * * *"
   workflow_dispatch:
 
 jobs:
   robot-tests:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout code
@@ -30,7 +28,22 @@ jobs:
       - name: Install Chrome
         uses: browser-actions/setup-chrome@latest
 
-      # ✅ Run Robot Framework tests with Allure listener
+      # ✅ Install Java (required for Allure)
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # ✅ Install Allure (fixed method)
+      - name: Install Allure
+        run: |
+          curl -o allure.tgz -L https://github.com/allure-framework/allure2/releases/latest/download/allure-2.29.0.tgz
+          tar -xzf allure.tgz
+          sudo mv allure-2.29.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/bin/allure
+
+      # ✅ Run tests
       - name: Run Robot Framework tests
         run: |
           python -m robot \
@@ -38,22 +51,19 @@ jobs:
           --listener allure_robotframework \
           --outputdir results tests/
 
-      # ✅ Generate Allure Report (no manual install needed)
+      # ✅ Generate Allure report
       - name: Generate Allure Report
-        uses: simple-elf/allure-report-action@v1
-        if: always()
-        with:
-          allure_results: results
-          allure_report: allure-report
+        run: |
+          allure generate results --clean -o allure-report
 
-      # ✅ Upload Allure Report
+      # ✅ Upload report
       - name: Upload Allure Report
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-report/
 
-      # (Optional) Keep raw Robot results
+      # Optional: raw results
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
